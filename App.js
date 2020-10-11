@@ -39,22 +39,32 @@ const MainApp = () => (
   </Tab.Navigator>
 );
 
-const AuthScreens = () => (
+const AuthScreens = ( props ) => (
   <Stack.Navigator>
 
-    <Stack.Screen name="Signup" component={ SignupScreen } />
-    <Stack.Screen name="Signin" component={ SigninScreen } />
+    <Stack.Screen name="Signup">
+      { ( otherProps ) => <SignupScreen toggle={ props.toggle } { ...otherProps } /> }
+    </Stack.Screen>
+
+    <Stack.Screen name="Signin">
+      { ( otherProps ) => <SigninScreen toggle={ props.toggle } { ...otherProps } /> }
+    </Stack.Screen>
+
   </Stack.Navigator>
 );
 
 export default function App ()
 {
   const [ isAuth, setIsAuth ] = useState( false );
+  const toggle = () => 
+  {
+    setIsAuth( !isAuth );
+  };
 
   return (
     <NavigationContainer>
       {
-        isAuth ? <MainApp /> : <AuthScreens />
+        isAuth ? <MainApp /> : <AuthScreens toggle={ toggle } />
       }
     </NavigationContainer>
   );
