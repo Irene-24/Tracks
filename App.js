@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import React, { useContext } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+
+import { Provider as AuthProvider } from "./src/context/AuthContext";
+import { Context as AuthContext } from "./src/context/AuthContext";
 
 import AccountScreen from "./src/screens/AccountScreen";
 import SigninScreen from "./src/screens/SigninScreen";
@@ -39,33 +42,35 @@ const MainApp = () => (
   </Tab.Navigator>
 );
 
-const AuthScreens = ( props ) => (
+const AuthScreens = () => (
   <Stack.Navigator>
 
-    <Stack.Screen name="Signup">
-      { ( otherProps ) => <SignupScreen toggle={ props.toggle } { ...otherProps } /> }
-    </Stack.Screen>
+    <Stack.Screen name="Signup" component={ SignupScreen } />
 
-    <Stack.Screen name="Signin">
-      { ( otherProps ) => <SigninScreen toggle={ props.toggle } { ...otherProps } /> }
-    </Stack.Screen>
+    <Stack.Screen name="Signin" component={ SigninScreen } />
+
 
   </Stack.Navigator>
 );
 
-export default function App ()
+const Container = () =>
 {
-  const [ isAuth, setIsAuth ] = useState( false );
-  const toggle = () => 
-  {
-    setIsAuth( !isAuth );
-  };
+  const { state } = useContext( AuthContext );
 
   return (
     <NavigationContainer>
       {
-        isAuth ? <MainApp /> : <AuthScreens toggle={ toggle } />
+        state.token ? <MainApp /> : <AuthScreens />
       }
     </NavigationContainer>
+  );
+};
+
+export default function App ()
+{
+  return (
+    <AuthProvider>
+      <Container />
+    </AuthProvider>
   );
 }
