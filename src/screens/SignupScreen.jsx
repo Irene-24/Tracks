@@ -1,16 +1,17 @@
-import React, { useLayoutEffect, useState, useContext } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { Text, Input, Button } from "react-native-elements";
+import React,
+{
+    useLayoutEffect,
+    useContext,
+    useCallback
+} from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 
 import { Context as AuthContext } from "../context/AuthContext";
-
-import Spacer from "../components/Spacer";
+import AuthForm from "../components/AuthForm";
 
 const SignupScreen = ( { navigation } ) =>
 {
-    const { signup, state } = useContext( AuthContext );
-    const [ email, setEmail ] = useState( "" );
-    const [ password, setPassword ] = useState( "" );
+    const { signup, state, clearErrMsg } = useContext( AuthContext );
 
     useLayoutEffect( () =>
     {
@@ -20,8 +21,17 @@ const SignupScreen = ( { navigation } ) =>
             } );
     }, [ navigation ] );
 
-    const register = () =>
+    useFocusEffect(
+        useCallback( () =>
+        {
+            clearErrMsg();
+        }, [] )
+    );
+
+
+    const register = ( { email, password } ) =>
     {
+
         signup( { email, password }, () =>
         {
             if ( !state.errorMessage )
@@ -33,62 +43,17 @@ const SignupScreen = ( { navigation } ) =>
     };
 
     return (
-        <View style={ styles.Container }>
 
-            <Spacer>
-                <Text h3 >Sign Up for Tracker</Text>
-            </Spacer>
+        <AuthForm
+            header="Sign Up for Tracker"
+            buttonText="Sign Up"
+            navText="Already have an account ? Sign in"
+            errorMessage={ state.errorMessage }
+            submit={ register }
+            goTo={ () => navigation.navigate( "Signin" ) }
+        />
 
-            <Input
-                label="Email"
-                value={ email }
-                autoCapitalize="none"
-                autoCorrect={ false }
-                onChangeText={ setEmail } />
-
-            <Spacer />
-            <Input
-                label="Password"
-                value={ password }
-                autoCapitalize="none"
-                autoCorrect={ false }
-                secureTextEntry
-                onChangeText={ setPassword } />
-
-
-            {
-                state.errorMessage ?
-                    <Spacer>
-
-                        <Text style={ styles.Error }>{ state.errorMessage }</Text>
-                    </Spacer>
-                    : null
-            }
-
-            <Spacer>
-                <Button
-                    title="Sign Up"
-                    onPress={ register } />
-            </Spacer>
-
-
-        </View>
     );
 };
 
 export default SignupScreen;
-
-const styles = StyleSheet.create(
-    {
-        Container:
-        {
-            flex: 1,
-            justifyContent: "center",
-            marginBottom: 100
-        },
-        Error:
-        {
-            fontSize: 16,
-            color: "red"
-        }
-    } );

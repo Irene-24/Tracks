@@ -1,18 +1,17 @@
-import React, { useLayoutEffect, useContext, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { Text, Input, Button } from "react-native-elements";
+import React,
+{
+    useLayoutEffect,
+    useContext,
+    useCallback
+} from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 
 import { Context as AuthContext } from "../context/AuthContext";
-
-import Spacer from "../components/Spacer";
-
+import AuthForm from "../components/AuthForm";
 
 const SigninScreen = ( { navigation, route } ) =>
 {
-
-    const { signin, state } = useContext( AuthContext );
-    const [ email, setEmail ] = useState( route.params.email || "" );
-    const [ password, setPassword ] = useState( route.params.password || "" );
+    const { signin, state, clearErrMsg } = useContext( AuthContext );
 
     useLayoutEffect( () =>
     {
@@ -22,69 +21,39 @@ const SigninScreen = ( { navigation, route } ) =>
             } );
     }, [ navigation ] );
 
-    const login = () =>
+
+    useFocusEffect(
+        useCallback( () =>
+        {
+            clearErrMsg();
+        }, [] )
+    );
+
+    const login = ( { email, password } ) =>
     {
         signin( { email, password } );
 
     };
 
     return (
-        <View style={ styles.Container }>
 
-            <Spacer>
-                <Text h3 >Sign In to Tracker</Text>
-            </Spacer>
-
-            <Input
-                label="Email"
-                value={ email }
-                autoCapitalize="none"
-                autoCorrect={ false }
-                onChangeText={ setEmail } />
-
-            <Spacer />
-            <Input
-                label="Password"
-                value={ password }
-                autoCapitalize="none"
-                autoCorrect={ false }
-                secureTextEntry
-                onChangeText={ setPassword } />
-
-
+        <AuthForm
+            header="Sign In to Tracker"
+            buttonText="Sign In"
+            navText="Not registered? Sign up"
+            errorMessage={ state.errorMessage }
+            submit={ login }
+            goTo={ () => navigation.navigate( "Signup" ) }
+            initValues=
             {
-                state.errorMessage ?
-                    <Spacer>
-
-                        <Text style={ styles.Error }>{ state.errorMessage }</Text>
-                    </Spacer>
-                    : null
+                {
+                    email: route.params?.email,
+                    password: route.params?.password,
+                }
             }
+        />
 
-            <Spacer>
-                <Button
-                    title="Sign In"
-                    onPress={ login } />
-            </Spacer>
-
-
-        </View>
     );
 };
 
 export default SigninScreen;
-
-const styles = StyleSheet.create(
-    {
-        Container:
-        {
-            flex: 1,
-            justifyContent: "center",
-            marginBottom: 100
-        },
-        Error:
-        {
-            fontSize: 16,
-            color: "red"
-        }
-    } );
