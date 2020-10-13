@@ -15,6 +15,7 @@ const SignupScreen = ( { navigation } ) =>
 
     useLayoutEffect( () =>
     {
+
         navigation.setOptions(
             {
                 headerShown: false

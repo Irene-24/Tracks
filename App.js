@@ -1,12 +1,17 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+
+
 import { Provider as AuthProvider } from "./src/context/AuthContext";
 import { Context as AuthContext } from "./src/context/AuthContext";
 
+
 import AccountScreen from "./src/screens/AccountScreen";
+import ResolveAuthScreen from "./src/screens/ResolveAuthScreen";
 import SigninScreen from "./src/screens/SigninScreen";
 import SignupScreen from "./src/screens/SignupScreen";
 import TrackListScreen from "./src/screens/TrackListScreen";
@@ -30,7 +35,7 @@ const Tracks = () => (
 const MainApp = () => (
   <Tab.Navigator>
     <Tab.Screen
-      name="Tracks"
+      name="TrackList"
       component={ Tracks } />
     <Tab.Screen
       name="TrackCreate"
@@ -49,18 +54,33 @@ const AuthScreens = () => (
 
     <Stack.Screen name="Signin" component={ SigninScreen } />
 
-
   </Stack.Navigator>
 );
 
 const Container = () =>
 {
   const { state } = useContext( AuthContext );
+  const [ loading, setLoading ] = useState( true );
+
+  useEffect( () =>
+  {
+    setTimeout( () => setLoading( false ), 500 );
+
+  }, [ loading ] );
+
+  if ( loading )
+  {
+    return <ResolveAuthScreen />;
+  }
+
+
 
   return (
     <NavigationContainer>
       {
-        state.token ? <MainApp /> : <AuthScreens />
+        state.token ?
+          <MainApp /> :
+          <AuthScreens />
       }
     </NavigationContainer>
   );
@@ -69,8 +89,11 @@ const Container = () =>
 export default function App ()
 {
   return (
-    <AuthProvider>
-      <Container />
-    </AuthProvider>
+    <SafeAreaProvider>
+      <AuthProvider>
+        <Container />
+      </AuthProvider>
+
+    </SafeAreaProvider>
   );
 }

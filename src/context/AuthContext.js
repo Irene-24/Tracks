@@ -7,12 +7,13 @@ const authReducer = ( state, action ) =>
     // let newState = { ...state };
     switch ( action.type ) 
     {
-
         case "add_error":
             return { ...state, errorMessage: action.payload };
         case "signin":
             return { ...state, errorMessage: "", token: action.payload };
         case "signup":
+            return { ...state, errorMessage: "" };
+        case "signout":
             return { ...state, errorMessage: "", token: null };
         case "clear_err_msg":
             return { ...state, errorMessage: "" };
@@ -54,7 +55,6 @@ const signin = dispatch =>
 {
     return async ( { email, password }, cb ) =>
     {
-
         try 
         {
             const response = await trackerApi.post( '/sign-in', { email, password } );
@@ -72,7 +72,6 @@ const signin = dispatch =>
         }
         catch
         {
-
             dispatch(
                 {
                     type: "add_error",
@@ -83,25 +82,42 @@ const signin = dispatch =>
     };
 };
 
-const signout = dispatch =>
+const signout = dispatch => async () =>
 {
-    return () =>
-    {
-
-    };
+    await AsyncStorage.removeItem( "tracker-token" );
+    dispatch(
+        {
+            type: "signout"
+        }
+    );
 };
 
+const tryLocalLogin = dispatch => async ( cb ) =>
+{
+    const token = await AsyncStorage.getItem( "tracker-token" );
+    if ( token )
+    {
+        dispatch(
+            {
+                type: "signin",
+                payload: token
+            }
+        );
+        if ( cb ) cb();
+    }
+};
 
 const clearErrMsg = dispatch => () =>
 {
     dispatch( { type: "clear_err_msg" } );
 };
 
-
 export const { Provider, Context } = createDataContext(
     authReducer,
-    { signin, signout, signup, clearErrMsg },
+    { signin, signout, signup, clearErrMsg, tryLocalLogin },
     {
+
+
         token: null,
         errorMessage: ""
     }
