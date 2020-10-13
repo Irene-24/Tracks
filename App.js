@@ -6,6 +6,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 
+import { Provider as LocationProvider } from "./src/context/LocationContext";
 import { Provider as AuthProvider } from "./src/context/AuthContext";
 import { Context as AuthContext } from "./src/context/AuthContext";
 
@@ -73,8 +74,6 @@ const Container = () =>
     return <ResolveAuthScreen />;
   }
 
-
-
   return (
     <NavigationContainer>
       {
@@ -90,10 +89,11 @@ export default function App ()
 {
   return (
     <SafeAreaProvider>
-      <AuthProvider>
-        <Container />
-      </AuthProvider>
-
+      <LocationProvider>
+        <AuthProvider>
+          <Container />
+        </AuthProvider>
+      </LocationProvider>
     </SafeAreaProvider>
   );
 }
